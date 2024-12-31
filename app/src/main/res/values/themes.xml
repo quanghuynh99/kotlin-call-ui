@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Call" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="colorPrimary">#FF5722</item>
+        <item name="colorPrimaryVariant">#E64A19</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">#00000000</item>
+        <item name="colorPrimaryVariant">#E64A19</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+
+</resources>
