@@ -10,6 +10,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Text
@@ -29,6 +32,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModelProvider
 import com.example.call.enums.CallType
 import com.example.call.enums.ProfileViewSize
@@ -38,6 +45,7 @@ import com.example.call.views.HorizontalButton
 import com.example.call.views.VideoView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.math.roundToInt
 
 class CallActivity : AppCompatActivity() {
     private var callType: CallType? = null
@@ -77,6 +85,23 @@ class CallActivity : AppCompatActivity() {
                 val hasSpeaker by viewModel.hasSpeaker.collectAsState()
                 val hasMicrophone by viewModel.hasMicrophone.collectAsState()
 
+                // Drag&Drop values
+                val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val boxSizeWidth = 112.dp
+                val boxSizeHeight = 120.dp
+
+                val density = LocalDensity.current
+                val screenWidthPx = with(density) { screenWidth.toPx() }
+                val screenHeightPx = with(density) { screenHeight.toPx() }
+                val boxSizePx = with(density) { boxSizeWidth.toPx() }
+
+                var offsetX by remember { mutableStateOf(screenWidthPx - boxSizePx - with(density) { 16.dp.toPx() }) }
+                var offsetY by remember { mutableStateOf(with(density) { 0.dp.toPx() }) }
+                val animatedOffsetX by animateFloatAsState(targetValue = offsetX)
+                val animatedOffsetY by animateFloatAsState(targetValue = offsetY)
+                val maxOffsetY = screenHeightPx -  with(density) { boxSizeHeight.toPx() } - with(density) { 250.dp.toPx() }
+
                 // Remote user
                 Box {
                     VideoView(
@@ -91,8 +116,22 @@ class CallActivity : AppCompatActivity() {
                     if (callType == CallType.VIDEO_CALL) {
                         Box(
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
+                                .offset {
+                                    IntOffset(
+                                        animatedOffsetX.roundToInt(),
+                                        animatedOffsetY.roundToInt()
+                                    )
+                                }
                                 .padding(top = 100.dp, end = 16.dp)
+                                .pointerInput(Unit) {
+                                    detectDragGestures { change, dragAmount ->
+                                        change.consume()
+                                        offsetX = (offsetX + dragAmount.x)
+                                            .coerceIn(0f, screenWidthPx - boxSizePx)
+                                        offsetY = (offsetY + dragAmount.y)
+                                            .coerceIn(0f, maxOffsetY)
+                                    }
+                                }
                         ) {
                             VideoView(
                                 profileSize = ProfileViewSize.MINIMIZE,
