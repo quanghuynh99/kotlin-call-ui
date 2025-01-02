@@ -1,10 +1,7 @@
 package com.example.call
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.telecom.Call
 import android.view.MenuItem
-import android.widget.VideoView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,8 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,11 +35,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.call.enums.CallType
 import com.example.call.enums.ProfileViewSize
 import com.example.call.models.CallViewModel
-import com.example.call.models.UserEntity
 import com.example.call.views.HorizontalButton
-import com.example.call.views.VideoView
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.example.call.views.CallView
 import kotlin.math.roundToInt
 
 class CallActivity : AppCompatActivity() {
@@ -104,7 +96,7 @@ class CallActivity : AppCompatActivity() {
 
                 // Remote user
                 Box {
-                    VideoView(
+                    CallView(
                         profileSize = ProfileViewSize.FULLSCREEN,
                         avatarImageUrl = calleeData.avatarImageUrl ?: "",
                         displayName = calleeData.displayName,
@@ -133,7 +125,7 @@ class CallActivity : AppCompatActivity() {
                                     }
                                 }
                         ) {
-                            VideoView(
+                            CallView(
                                 profileSize = ProfileViewSize.MINIMIZE,
                                 avatarImageUrl = callerData.avatarImageUrl,
                                 displayName = callerData.displayName,

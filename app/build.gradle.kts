@@ -50,7 +50,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -75,4 +74,5 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.x.x")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.x.x")
+    implementation("com.google.android.exoplayer:exoplayer:2.18.7")
 }

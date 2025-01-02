@@ -1,71 +1,51 @@
 package com.example.call.views
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import android.content.Context
+import android.net.Uri
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import com.example.call.enums.ProfileViewSize
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player.REPEAT_MODE_ALL
+import com.google.android.exoplayer2.Player.REPEAT_MODE_OFF
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.StyledPlayerView
 
 @Composable
-fun VideoView(
-    profileSize: ProfileViewSize,
-    avatarImageUrl: String,
-    displayName: String,
-    callState: String? = null,
-    defaultAvatarResId: Int,
-    hasVideo: Boolean = false
-) {
-    Box(
-        modifier = profileSize.modifier
-    ) {
-        if (hasVideo) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(text = "Video Track", Modifier.background(Color.Red).fillMaxSize())
+fun ExoplayerExample(url: String) {
+    val context = LocalContext.current
+    val mediaItem = MediaItem.Builder()
+        .setUri(url)
+        .build()
+    val exoPlayer = remember(context, mediaItem) {
+        ExoPlayer.Builder(context)
+            .build()
+            .also { exoPlayer ->
+                exoPlayer.setMediaItem(mediaItem)
+                exoPlayer.prepare()
+                exoPlayer.playWhenReady = true
+                exoPlayer.repeatMode = REPEAT_MODE_ALL
             }
-        } else {
-            // Background Image
-            AsyncImageView(
-                imageUrl = avatarImageUrl,
-                defaultAvatarResId = defaultAvatarResId,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(if (profileSize == ProfileViewSize.MINIMIZE) 14.dp else 0.dp))
-                    .blur(30.dp)
-            )
+    }
 
-            // Foreground Content
-            Column(
-                modifier = Modifier.align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Avatar Image
-                AsyncImageView(
-                    imageUrl = avatarImageUrl,
-                    defaultAvatarResId = defaultAvatarResId,
-                    modifier = Modifier
-                        .size(if (profileSize == ProfileViewSize.MINIMIZE) 40.dp else 64.dp)
-                        .clip(CircleShape)
-                )
-
-                // Display Name
-                DisplayNameView(
-                    name = displayName,
-                    isMinimized = profileSize == ProfileViewSize.MINIMIZE
-                )
-
-                // Call State
-                callState?.let {
-                    ContentView(state = callState)
-                }
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = {
+            StyledPlayerView(context).apply {
+                player = exoPlayer
+                useController = false
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING)
             }
         }
+    )
+
+    DisposableEffect(Unit) {
+        onDispose { exoPlayer.release() }
     }
 }
