@@ -28,8 +28,6 @@ fun CallView(
     ) {
         if (hasVideo) {
             Box(modifier = Modifier.fillMaxSize()) {
-//                Text(text = "Video Track", Modifier.background(Color.Red).fillMaxSize())
-
                 ExoplayerExample(url = "https://assets.mixkit.co/active_storage/video_items/100352/1723572658/100352-video-720.mp4")
             }
         } else {
